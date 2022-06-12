@@ -28,7 +28,7 @@ builder.Services.AddMassTransit(x => {
             e.ConfigureConsumer<OrderCreatedEventHandler>(context);
         });
 
-        config.ReceiveEndpoint(MessageQueueConst.PaymentService.PaymentFailedEvent, e => {
+        config.ReceiveEndpoint(MessageQueueConst.PaymentService.StockPaymentFailedEvent, e => {
             e.ConfigureConsumer<PaymentFailedEventHandler>(context);
         });
     });

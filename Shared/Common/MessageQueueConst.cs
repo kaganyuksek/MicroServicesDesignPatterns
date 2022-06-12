@@ -17,6 +17,8 @@
         {
             public const string PaymentSucceededEvent = "payment-succeeded-queue";
             public const string PaymentFailedEvent = "payment-failed-queue";
+            public const string StockPaymentFailedEvent = "stock-payment-failed-queue";
+
         }
     }
 }
