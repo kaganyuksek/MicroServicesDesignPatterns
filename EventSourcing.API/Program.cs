@@ -1,3 +1,4 @@
+using EventSourcing.API.BackgroundService;
 using EventSourcing.API.EventStores;
 using EventSourcing.API.EventStores.Extensions;
 using EventSourcing.API.Models;
@@ -21,6 +22,8 @@ builder.Services.AddDbContext<AppDbContext>(options => {
 builder.Services.AddEventStore(builder.Configuration);
 builder.Services.AddMediatR(Assembly.GetExecutingAssembly());
 builder.Services.AddTransient<ProductStream>();
+
+builder.Services.AddHostedService<ProductEventSubscriber>();
 
 var app = builder.Build();
 
