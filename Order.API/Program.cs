@@ -1,6 +1,5 @@
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
-using Order.API.Consumers;
 using Order.API.Models;
 using Shared.Common;
 using Shared.Events.Orders;
@@ -19,32 +18,16 @@ builder.Services.AddDbContext<AppDbContext>(opt => {
 });
 
 builder.Services.AddMassTransit(x => {
-    x.UsingRabbitMq((context, config) =>
+    x.UsingRabbitMq((context, cfg) =>
     {
-        config.Host(builder.Configuration.GetConnectionString("RabbitMQ"));
-        
-        config.ReceiveEndpoint(MessageQueueConst.PaymentService.PaymentSucceededEvent, e => {
-            e.ConfigureConsumer<PaymentSucceededEventHandler>(context);
-        });
-
-        config.ReceiveEndpoint(MessageQueueConst.PaymentService.PaymentFailedEvent, e => {
-            e.ConfigureConsumer<PaymentFailedEventHandler>(context);
-        });
-
-        config.ReceiveEndpoint(MessageQueueConst.StockService.StockNotReservedEvent, e => {
-            e.ConfigureConsumer<StockNotReservedEventHandler>(context);
-        });
+        cfg.Host(builder.Configuration.GetConnectionString("RabbitMQ"));
     });
-
-    x.AddConsumer<PaymentSucceededEventHandler>();
-    x.AddConsumer<PaymentFailedEventHandler>();
-    x.AddConsumer<StockNotReservedEventHandler>();
-
-    EndpointConvention.Map<OrderCreatedEvent>(new Uri($"queue:{MessageQueueConst.OrderService.OrderCreatedEvent}"));
 });
 
+EndpointConvention.Map<IOrderCreatedRequestEvent>(new Uri($"queue:{MessageQueueConst.OrderService.OrderCreatedEvent}"));
+
+
 builder.Services.AddTransient<AppDbContext>();
-builder.Services.AddMassTransitHostedService();
 
 var app = builder.Build();
 

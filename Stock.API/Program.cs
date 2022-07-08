@@ -1,7 +1,5 @@
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
-using Shared.Common;
-using Stock.API.Consumers;
 using Stock.API.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,22 +21,10 @@ builder.Services.AddMassTransit(x => {
     x.UsingRabbitMq((context, config) =>
     {
         config.Host(builder.Configuration.GetConnectionString("RabbitMQ"));
-
-        config.ReceiveEndpoint(MessageQueueConst.OrderService.OrderCreatedEvent, e => {
-            e.ConfigureConsumer<OrderCreatedEventHandler>(context);
-        });
-
-        config.ReceiveEndpoint(MessageQueueConst.PaymentService.StockPaymentFailedEvent, e => {
-            e.ConfigureConsumer<PaymentFailedEventHandler>(context);
-        });
     });
-
-    x.AddConsumer<OrderCreatedEventHandler>();
-    x.AddConsumer<PaymentFailedEventHandler>();
 });
 
 builder.Services.AddTransient<AppDbContext>();
-builder.Services.AddMassTransitHostedService();
 
 var app = builder.Build();
 

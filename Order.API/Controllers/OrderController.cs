@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Order.API.DTOs;
 using Order.API.Models;
+using Shared.Common;
+using Shared.Events;
 using Shared.Events.Orders;
 
 namespace Order.API.Controllers
@@ -37,17 +39,15 @@ namespace Order.API.Controllers
                     await Context.SaveChangesAsync();
                     await transaction.CommitAsync();
 
-                    var orderCreatedEvent = new OrderCreatedEvent
+                    var orderCreatedEvent = new OrderCreatedRequestEvent
                     {
                         BuyerId = newOrder.BuyerId,
                         OrderId = newOrder.Id,
                         TotalPrice = newOrder.TotalAmount,
-                        CardInfo = new CardInformation(order.Payment.HolderNameSurname, order.Payment.CardNumber, order.Payment.ExpireDate, order.Payment.CVV),
                         OrderItems = newOrder.Items.Select(x => new OrderItemMessage(x.ProductId, x.Count)).ToList()
                     };
 
-                    //await SendEndpoint.GetSendEndpoint(new Uri("rabbitmq://localhost/order-created"));
-                    await SendEndpoint.Send(orderCreatedEvent); 
+                    await SendEndpoint.Send<IOrderCreatedRequestEvent>(orderCreatedEvent); 
                 }
                 catch (Exception ex)
                 {
